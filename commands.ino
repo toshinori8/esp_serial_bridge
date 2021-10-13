@@ -11,6 +11,15 @@
 void sendCommand(String myCommand, int raw)
 {
 
+  digitalWrite(LED_BUILTIN, LOW);
+delay(50);
+  digitalWrite(LED_BUILTIN, HIGH);
+delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+delay(50);
+  digitalWrite(LED_BUILTIN, HIGH);
+
+
 
 
   if (raw == 1)
@@ -108,7 +117,7 @@ void getCommand(String payload)
     http.begin("http://api.openweathermap.org/data/2.5/forecast?lat=49.8808919&lon=19.5607773&appid=f055d509de51700a688e61d5f8e3da76&units=metric&cnt=3"); //Specify request destination
     int httpCode = http.GET();
 
-    Serial.println("httpCode  = " + httpCode);
+    //Serial.println("httpCode  = " + httpCode);
 
     if (httpCode > 0)
     { //Check the returning code
