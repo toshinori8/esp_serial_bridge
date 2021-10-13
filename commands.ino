@@ -113,11 +113,19 @@ void getCommand(String payload)
     if (httpCode > 0)
     { //Check the returning code
 
-      Hpayload = http.getString(); //Get the request response payload
+     Hpayload = http.getString(); //Get the request response payload
     }
+          
+ 
+      //Serial.print(Hpayload);
 
-    sendCommand(Hpayload, 1);
-    http.end();
+  
+        
+        processJson(Hpayload);
+        //sendCommand(Hpayload, 1);
+        http.end();
+        
+    
   }
   else if (payload == "wifistatus")
   {

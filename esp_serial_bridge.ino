@@ -1,8 +1,16 @@
+#include <ArduinoJson.h>
+
 /*
  * ESP8266 MQTT Wifi Client to Serial Bridge with NTP
  * Author: rkubera https://github.com/rkubera/
  * License: MIT
  */
+
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
+
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <String.h>
@@ -11,6 +19,7 @@
 #include <time.h>                       // time() ctime()
 #include <sys/time.h>                   // struct timeval
 //#include <coredecls.h>                  // settimeofday_cb()
+
 
 //NTP
 #define TZ              0       // (utc+) TZ in hours
@@ -25,19 +34,24 @@ bool cbtime_set = false;
 //WIFIsettings
 String ssid = "oooooio";
 String  password = "pmgana921";
+#ifndef STASSID
+#define STASSID "oooooio"
+#define STAPSK  "pmgana921"
+#endif
 
 bool wificonnected = false;
 
 //MQTT Client
-WiFiClient espClient;
-PubSubClient client(espClient);
+WiFiClient espGateway;
+PubSubClient client(espGateway);
 
-String mqtt_server ="192.168.8.105";
+String mqtt_server ="192.168.8.150";
 int mqtt_port = 1883;
-String mqtt_user = "pi";
-String mqtt_pass = "root";
-String mqtt_allSubscriptions = "czujniki";
+String mqtt_user = "mqtt";
+String mqtt_pass = STAPSK;
+String mqtt_allSubscriptions = "home/MQTTGateway/#";
 
+int ledpin = 1;
 
 // String mqtt_server ="192.168.8.107";
 // int mqtt_port = 1883;
@@ -156,16 +170,66 @@ void setup() {
   delay(120);
   //WIFI
   WiFi.mode(WIFI_STA);
+
+  
   client.setCallback(mqtt_cb);
   Serial.println("Wifi Mode STA");
   //NTP
   //settimeofday_cb(time_is_set_cb);
   configTime(TZ_SEC, DST_SEC, "pool.ntp.org");  
+
+
+/// OTA 
+
+ArduinoOTA.onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      type = "sketch";
+    } else { // U_FS
+      type = "filesystem";
+    }
+
+    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+    Serial.println("Start updating " + type);
+
+                        // Wait for a second
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(2000); 
+     digitalWrite(ledpin, LOW);
+  });
+  ArduinoOTA.onEnd([]() {
+
+    
+     digitalWrite(ledpin, HIGH);
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) {
+      Serial.println("Auth Failed");
+    } else if (error == OTA_BEGIN_ERROR) {
+      Serial.println("Begin Failed");
+    } else if (error == OTA_CONNECT_ERROR) {
+      Serial.println("Connect Failed");
+    } else if (error == OTA_RECEIVE_ERROR) {
+      Serial.println("Receive Failed");
+    } else if (error == OTA_END_ERROR) {
+      Serial.println("End Failed");
+    }
+  });
+  ArduinoOTA.begin();
+
+
+  
 }
 
 void loop() {
 
 if(WiFi.status() == WL_CONNECTED){
+
           
 }
 
@@ -177,10 +241,14 @@ if(WiFi.status() == WL_CONNECTED){
       if ( WiFi.status() != WL_CONNECTED ) {
         delay(10);
         commandLoop();
+         digitalWrite(ledpin, HIGH);
       }
       else {
         sendCommand("wifi connected",0);
         wificonnected=true;
+
+          digitalWrite(ledpin, LOW);
+        
         if (mqtt_server!="") {
           if (reconnect()) {
              reSubscribe();
@@ -202,6 +270,7 @@ if(WiFi.status() == WL_CONNECTED){
       }
     }
   }
+  ArduinoOTA.handle();
   commandLoop();
   yield();
 }
