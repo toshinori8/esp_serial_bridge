@@ -28,27 +28,27 @@ void processJson (String inputJs) {
     docs["sunrise"] = jsonString;
 
 
-    //docs["sunset"]          =     doca["city"]["sunset"];
-    //docs["temp"]            =     doca["list"][0]["main"]["temp"];
-    //docs["feels_like"]      =     doca["list"][0]["main"]["feels_like"];
-    //docs["temp_min"]        =     doca["list"][0]["main"]["temp_min"];
-    //docs["temp_max"]        =     doca["list"][0]["main"]["temp_max"];
-    //docs["humidity"]        =     doca["list"][0]["main"]["humidity"];
-    //docs["pressure"]        =     doca["list"][0]["main"]["pressure"];
-    //docs["visibility"]      =     doca["list"][0]["visibility"];
-    //docs["clouds_all"]      =     doca["list"][0]["clouds"]["all"];
-    //docs["wind_speed"]      =     doca["list"][0]["wind"]["speed"];         //2.94;
-    //docs["rain"]            =     doca["list"][0]["rain"]["main"];          //="Rain";
-    //docs["dt"]              =     doca["list"][0]["dt_txt"];
+    docs["sunset"]          =     doca["city"]["sunset"];
+    docs["temp"]            =     doca["list"][0]["main"]["temp"];
+    docs["feels_like"]      =     doca["list"][0]["main"]["feels_like"];
+    docs["temp_min"]        =     doca["list"][0]["main"]["temp_min"];
+    docs["temp_max"]        =     doca["list"][0]["main"]["temp_max"];
+    docs["humidity"]        =     doca["list"][0]["main"]["humidity"];
+    docs["pressure"]        =     doca["list"][0]["main"]["pressure"];
+    docs["visibility"]      =     doca["list"][0]["visibility"];
+    docs["clouds_all"]      =     doca["list"][0]["clouds"]["all"];
+    docs["wind_speed"]      =     doca["list"][0]["wind"]["speed"];         //2.94;
+    docs["rain"]            =     doca["list"][0]["rain"]["main"];          //="Rain";
+    docs["dt"]              =     doca["list"][0]["dt_txt"];
 
     //serializeJsonPretty(docs, Serial);
 
-    //JsonObject rain = docs.createNestedObject("rain");
-    //
-    //rain["id"]              =     doca["list"][0]["rain"]["id"];          //=500;
-    //rain["3h"]              =     doca["list"][0]["rain"]["3h"];          //=0.76;
-    //rain["icon"]            =     doca["list"][0]["rain"]["icon"];        //"10d";
-    //rain["description"]     =     doca["list"][0]["rain"]["description"]; //"light rain";
+    JsonObject rain = docs.createNestedObject("rain");
+    
+    rain["id"]              =     doca["list"][0]["rain"]["id"];          //=500;
+    rain["3h"]              =     doca["list"][0]["rain"]["3h"];          //=0.76;
+    rain["icon"]            =     doca["list"][0]["rain"]["icon"];        //"10d";
+    rain["description"]     =     doca["list"][0]["rain"]["description"]; //"light rain";
 
 
     serializeJson(docs, outJSON);
