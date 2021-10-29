@@ -10,14 +10,14 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
+#include <String.h>
+#include <time.h>                       // time() ctime()
+#include <sys/time.h>  
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include <String.h>
 #include <ESP8266HTTPClient.h>
-#include <String.h>
-#include <time.h>                       // time() ctime()
-#include <sys/time.h>                   // struct timeval
+                 // struct timeval
 //#include <coredecls.h>                  // settimeofday_cb()
 IPAddress ip;  
 
