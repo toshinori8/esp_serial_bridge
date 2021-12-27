@@ -1,3 +1,5 @@
+
+
 #include <ArduinoJson.h>
 
 /*
@@ -165,25 +167,7 @@ void setup() {
   sendCommand("ready", 0);
 
 
-
-
-  WiFi.mode(WIFI_OFF);
-  delay(120);
-  //WIFI
-  WiFi.mode(WIFI_STA);
-
-
-  client.setCallback(mqtt_cb);
-  Serial.println("Wifi Mode STA");
-  //NTP
-  //settimeofday_cb(time_is_set_cb);
-  configTime(TZ_SEC, DST_SEC, "pool.ntp.org");
-
-
-    
-
   /// OTA
-
   ArduinoOTA.onStart([]() {
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -201,9 +185,6 @@ void setup() {
    
   });
   ArduinoOTA.onEnd([]() {
-
-
-    
     Serial.println("\nEnd");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
@@ -229,6 +210,24 @@ void setup() {
 //  ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
  ArduinoOTA.begin();
   ArduinoOTA.setHostname("AVR-Termostat-DUE");
+  /// OTA
+
+  WiFi.mode(WIFI_OFF);
+  delay(120);
+  //WIFI
+  WiFi.mode(WIFI_STA);
+
+
+  client.setCallback(mqtt_cb);
+  Serial.println("Wifi Mode STA");
+  //NTP
+  //settimeofday_cb(time_is_set_cb);
+  configTime(TZ_SEC, DST_SEC, "pool.ntp.org");
+
+
+    
+
+
 
   
 
