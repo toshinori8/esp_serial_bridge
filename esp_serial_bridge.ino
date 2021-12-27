@@ -1,7 +1,5 @@
 
 
-#include <ArduinoJson.h>
-
 /*
    ESP8266 MQTT Wifi Client to Serial Bridge with NTP
    Author: rkubera https://github.com/rkubera/
