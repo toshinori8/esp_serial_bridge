@@ -65,7 +65,7 @@ void getCommand(String payload)
     {
       String Hpayload;
       HTTPClient http;
-      http.begin(payload_B); // Request URL
+      http.begin(HTTPClient, payload_B); // Request URL
       int httpCode = http.GET();
       Serial.println("httpCode  = " + httpCode);
       if (httpCode > 0)
@@ -114,7 +114,7 @@ void getCommand(String payload)
     String Hpayload;
     HTTPClient http;
 
-    http.begin("http://api.openweathermap.org/data/2.5/forecast?lat=49.8808919&lon=19.5607773&appid=f055d509de51700a688e61d5f8e3da76&units=metric&cnt=3"); //Specify request destination
+    http.begin(HTTPClient, "http://api.openweathermap.org/data/2.5/forecast?lat=49.8808919&lon=19.5607773&appid=f055d509de51700a688e61d5f8e3da76&units=metric&cnt=3"); //Specify request destination
     int httpCode = http.GET();
 
     //Serial.println("httpCode  = " + httpCode);

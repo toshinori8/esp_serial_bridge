@@ -31,10 +31,10 @@ bool cbtime_set = false;
 
 
 //WIFIsettings
-String ssid = "oooooio";
+String ssid = "|oooooio|";
 String  password = "pmgana921";
 #ifndef STASSID
-#define STASSID "oooooio"
+#define STASSID "|oooooio|"
 #define STAPSK  "pmgana921"
 #endif
 
@@ -61,7 +61,7 @@ String mqtt_allSubscriptions = "home/MQTTGateway/#";
 
 
 //BUFFER
-#define bufferSize 1024
+const int bufferSize =1024;
 uint8_t myBuffer[bufferSize];
 int bufIdx = 0;
 
