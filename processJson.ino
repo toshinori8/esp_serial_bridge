@@ -1,4 +1,4 @@
-#include <ArduinoJson.h>
+#include <Arduino_JSON.h>
 void processJson (String inputJs) {
   String outJSON;
 
@@ -23,9 +23,9 @@ void processJson (String inputJs) {
 
     docs["cod"] = "forecast";
 
-    //String jsonString = JSON.stringify(doca["city"]["sunrise"].as<long>());
+    String jsonString = JSON.stringify(doca["city"]["sunrise"].as<long>());
     //docs["sunrise"]         =       doca["city"]["sunrise"].as<long>();
-    //docs["sunrise"] = jsonString;
+    docs["sunrise"] = jsonString;
 
 
     docs["sunset"]          =     doca["city"]["sunset"];

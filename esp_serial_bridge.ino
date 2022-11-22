@@ -1,4 +1,7 @@
 
+
+#include <ArduinoJson.h>
+
 /*
    ESP8266 MQTT Wifi Client to Serial Bridge with NTP
    Author: rkubera https://github.com/rkubera/
@@ -31,10 +34,10 @@ bool cbtime_set = false;
 
 
 //WIFIsettings
-String ssid = "|oooooio|";
+String ssid = "|oooooi|";
 String  password = "pmgana921";
 #ifndef STASSID
-#define STASSID "|oooooio|"
+#define STASSID "|oooooi|"
 #define STAPSK  "pmgana921"
 #endif
 
@@ -61,7 +64,7 @@ String mqtt_allSubscriptions = "home/MQTTGateway/#";
 
 
 //BUFFER
-const int bufferSize =1024;
+#define bufferSize 1024
 uint8_t myBuffer[bufferSize];
 int bufIdx = 0;
 
@@ -108,6 +111,9 @@ void mqtt_cb(char* topic, byte* payload, unsigned int length) {
     //digitalWrite(LED_, HIGH);  // Turn the LED off by making the voltage HIGH
   }
 }
+
+findmeXXX
+
 
 void reSubscribe() {
   int start = 0;
@@ -165,48 +171,8 @@ void setup() {
 
 
   /// OTA
-  ArduinoOTA.onStart([]() {
-    String type;
-    if (ArduinoOTA.getCommand() == U_FLASH) {
-      type = "sketch";
-    } else { // U_FS
-      type = "filesystem";
-    }
-
-    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
-    Serial.println("Start updating " + type);
-
-    // Wait for a second
   
-    delay(2000);
-   
-  });
-  ArduinoOTA.onEnd([]() {
-    Serial.println("\nEnd");
-  });
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
-  ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) {
-      Serial.println("Auth Failed");
-    } else if (error == OTA_BEGIN_ERROR) {
-      Serial.println("Begin Failed");
-    } else if (error == OTA_CONNECT_ERROR) {
-      Serial.println("Connect Failed");
-    } else if (error == OTA_RECEIVE_ERROR) {
-      Serial.println("Receive Failed");
-    } else if (error == OTA_END_ERROR) {
-      Serial.println("End Failed");
-    }
-  });
-
-  // ArduinoOTA.setPassword("admin");
-//
-//  ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
- ArduinoOTA.begin();
-  ArduinoOTA.setHostname("AVR-Termostat-DUE");
+  otaStart();
   /// OTA
 
   WiFi.mode(WIFI_OFF);
