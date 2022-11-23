@@ -1,13 +1,10 @@
 
 
 
-#include <ESPAsyncWebServer.h>
-#include <AsyncTCP.h>
-#include "sdkconfig.h"
+
 #include <espnow.h>
 
 #include <ArduinoJson.h>
-
 /*
    ESP8266 MQTT Wifi Client to Serial Bridge with NTP
    Author: rkubera https://github.com/rkubera/
@@ -25,9 +22,18 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ESP8266HTTPClient.h>
+#include <ESPAsyncTCP.h>
 // struct timeval
 //#include <coredecls.h>                  // settimeofday_cb()
 IPAddress ip;
+
+
+
+//BUFFER
+const int bufferSize = 1024;
+uint8_t myBuffer[bufferSize];
+int bufIdx = 0;
+
 
 //NTP
 #define TZ 0      // (utc+) TZ in hours
@@ -59,6 +65,10 @@ String mqtt_user = "mqtt";
 String mqtt_pass = STAPSK;
 String mqtt_allSubscriptions = "home/MQTTGateway/#";
 
+//MQTT payload
+long lastMsg = 0;
+char msg[bufferSize];
+long int value = 0;
 
 
 // String mqtt_server ="192.168.8.107";
@@ -69,15 +79,16 @@ String mqtt_allSubscriptions = "home/MQTTGateway/#";
 
 
 
-//BUFFER
-#define bufferSize 1024
-uint8_t myBuffer[bufferSize];
-int bufIdx = 0;
 
-//MQTT payload
-long lastMsg = 0;
-char msg[bufferSize];
-long int value = 0;
+
+void otaStart();
+void webserverInit();
+void esp_event();
+
+
+void initESP_NOW();
+
+// ESP_FUNCTIONS.INO 
 
 void time_is_set_cb(void) {
   gettimeofday(&cbtime, NULL);
@@ -181,7 +192,7 @@ void setup() {
   delay(120);
 
   //WIFI
-  WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_AP_STA);
   Serial.println("Wifi Mode STA");
 
   Serial.print("Board MAC Address:  ");
@@ -194,19 +205,9 @@ void setup() {
   configTime(TZ_SEC, DST_SEC, "pool.ntp.org");
 
 
+  // initESP_NOW();
+  // webserverInit();
 
-  // Init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
-
-  // Once ESPNow is successfully Init, we will register for recv CB to
-  // get recv packer info
-  esp_now_register_recv_cb(OnDataRecv);
-
-
-  webserverInit();
 }
 
 void loop() {
@@ -236,11 +237,11 @@ void loop() {
 
 
         if (mqtt_server != "") {
-          if (reconnect()) {
-            // reSubscribe();
+          // if (reconnect()) {
+          //   // reSubscribe();
 
-            // disable MQQT
-          }
+          //   // disable MQQT
+          // }
         }
         break;
       }
@@ -248,10 +249,10 @@ void loop() {
   } else if (ssid != "") {
     if (wificonnected == true) {
       if (!client.connected() && mqtt_server != "") {
-        if (reconnect()) {
-          // reSubscribe();
-          // disable MQQT
-        }
+        // if (reconnect()) {
+        //   // reSubscribe();
+        //   // disable MQQT
+        // }
       } else {
         client.loop();
       }
@@ -260,4 +261,10 @@ void loop() {
   ArduinoOTA.handle();
   commandLoop();
   yield();
+
+ 
+
+  }
+
+
 }
