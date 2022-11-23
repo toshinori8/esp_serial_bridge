@@ -1,5 +1,11 @@
 
 
+
+#include <ESPAsyncWebServer.h>
+#include <AsyncTCP.h>
+#include "sdkconfig.h"
+#include <espnow.h>
+
 #include <ArduinoJson.h>
 
 /*
@@ -13,32 +19,32 @@
 #include <ArduinoOTA.h>
 
 #include <String.h>
-#include <time.h>                       // time() ctime()
-#include <sys/time.h>  
+#include <time.h>  // time() ctime()
+#include <sys/time.h>
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ESP8266HTTPClient.h>
-                 // struct timeval
+// struct timeval
 //#include <coredecls.h>                  // settimeofday_cb()
-IPAddress ip;  
+IPAddress ip;
 
 //NTP
-#define TZ              0       // (utc+) TZ in hours
-#define DST_MN          0      // use 60mn for summer time in some countries
-#define TZ_MN           ((TZ)*60)
-#define TZ_SEC          ((TZ)*3600)
-#define DST_SEC         ((DST_MN)*60)
-timeval cbtime;      // time set in callback
+#define TZ 0      // (utc+) TZ in hours
+#define DST_MN 0  // use 60mn for summer time in some countries
+#define TZ_MN ((TZ)*60)
+#define TZ_SEC ((TZ)*3600)
+#define DST_SEC ((DST_MN)*60)
+timeval cbtime;  // time set in callback
 bool cbtime_set = false;
 
 
 //WIFIsettings
 String ssid = "|oooooi|";
-String  password = "pmgana921";
+String password = "pmgana921";
 #ifndef STASSID
 #define STASSID "|oooooi|"
-#define STAPSK  "pmgana921"
+#define STAPSK "pmgana921"
 #endif
 
 bool wificonnected = false;
@@ -78,8 +84,7 @@ void time_is_set_cb(void) {
   cbtime_set = true;
   if (ssid != "" && WiFi.status() == WL_CONNECTED) {
     cbtime_set = true;
-  }
-  else {
+  } else {
     cbtime_set = false;
   }
 }
@@ -102,8 +107,8 @@ void mqtt_cb(char* topic, byte* payload, unsigned int length) {
   Serial.print(checksum);
   Serial.print(" ");
   Serial.print(topic);
-  Serial.print (" ");
-  Serial.write (payload, length);
+  Serial.print(" ");
+  Serial.write(payload, length);
   Serial.println();
   if ((char)payload[0] == '1') {
     //digitalWrite(LED_, LOW);   // Turn the LED on (Note that LOW is the voltage level
@@ -112,7 +117,7 @@ void mqtt_cb(char* topic, byte* payload, unsigned int length) {
   }
 }
 
-findmeXXX
+
 
 
 void reSubscribe() {
@@ -125,15 +130,13 @@ void reSubscribe() {
       sub = mqtt_allSubscriptions.substring(start, lineIdx);
       start = lineIdx + 1;
       sub.trim();
-    }
-    else {
+    } else {
       sub = "";
     }
     if (sub.length() > 0) {
       client.subscribe(sub.c_str());
     }
-  }
-  while (lineIdx > -1);
+  } while (lineIdx > -1);
 }
 bool reconnect() {
   // Create a random client ID
@@ -146,8 +149,7 @@ bool reconnect() {
       sendCommand("mqtt connected", 0);
       return true;
     }
-  }
-  else {
+  } else {
     if (client.connect(clientId.c_str())) {
       sendCommand("mqtt connected", 0);
       return true;
@@ -171,29 +173,40 @@ void setup() {
 
 
   /// OTA
-  
+
   otaStart();
   /// OTA
 
   WiFi.mode(WIFI_OFF);
   delay(120);
+
   //WIFI
   WiFi.mode(WIFI_STA);
+  Serial.println("Wifi Mode STA");
 
+  Serial.print("Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
 
   client.setCallback(mqtt_cb);
-  Serial.println("Wifi Mode STA");
+
   //NTP
   //settimeofday_cb(time_is_set_cb);
   configTime(TZ_SEC, DST_SEC, "pool.ntp.org");
 
 
-    
+
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+
+  // Once ESPNow is successfully Init, we will register for recv CB to
+  // get recv packer info
+  esp_now_register_recv_cb(OnDataRecv);
 
 
-
-  
-
+  webserverInit();
 }
 
 void loop() {
@@ -201,8 +214,6 @@ void loop() {
 
 
   if (WiFi.status() == WL_CONNECTED) {
-
-
   }
 
   if (ssid != "" && WiFi.status() != WL_CONNECTED) {
@@ -210,41 +221,38 @@ void loop() {
     wificonnected = false;
     WiFi.begin(ssid.c_str(), password.c_str());
     for (int i = 0; i < 1000; i++) {
-      if ( WiFi.status() != WL_CONNECTED ) {
+      if (WiFi.status() != WL_CONNECTED) {
         delay(10);
         commandLoop();
-        
-      }
-      else {
+
+      } else {
         sendCommand("wifi connected", 0);
         wificonnected = true;
 
-    delay(1000);
-   
- ip = WiFi.localIP();
-    Serial.println(ip);
+        delay(1000);
 
-  
-   
-        
+        ip = WiFi.localIP();
+        Serial.println(ip);
+
 
         if (mqtt_server != "") {
           if (reconnect()) {
-            reSubscribe();
+            // reSubscribe();
+
+            // disable MQQT
           }
         }
         break;
       }
     }
-  }
-  else if (ssid != "") {
+  } else if (ssid != "") {
     if (wificonnected == true) {
       if (!client.connected() && mqtt_server != "") {
         if (reconnect()) {
-          reSubscribe();
+          // reSubscribe();
+          // disable MQQT
         }
-      }
-      else {
+      } else {
         client.loop();
       }
     }
