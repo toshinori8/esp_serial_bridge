@@ -1,10 +1,11 @@
-#include <Arduino_JSON.h>
+#include <ArduinoJson.h>
+
 void processJson (String inputJs) {
   String outJSON;
 
   /////   DECODE INCOMING HTTP JSON MESSAGE
 
-  //Serial.print(inputJs);
+  Serial.print(inputJs);
   DynamicJsonDocument doca(3072);
 
   DeserializationError error = deserializeJson(doca, inputJs);
@@ -23,11 +24,11 @@ void processJson (String inputJs) {
 
     docs["cod"] = "forecast";
 
-    String jsonString = JSON.stringify(doca["city"]["sunrise"].as<long>());
+    //String jsonString = JSON.stringify(doca["city"]["sunrise"].as<long>());
     //docs["sunrise"]         =       doca["city"]["sunrise"].as<long>();
-    docs["sunrise"] = jsonString;
+    //docs["sunrise"] = jsonString;
 
-
+    docs["sunrise"]         =     doca["city"]["sunrise"];
     docs["sunset"]          =     doca["city"]["sunset"];
     docs["temp"]            =     doca["list"][0]["main"]["temp"];
     docs["feels_like"]      =     doca["list"][0]["main"]["feels_like"];

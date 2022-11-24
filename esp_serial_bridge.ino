@@ -1,30 +1,25 @@
 
-
-
-#include <ESPAsyncWebServer.h>
-#include <AsyncTCP.h>
-#include "sdkconfig.h"
-#include <espnow.h>
-
-#include <ArduinoJson.h>
-
 /*
    ESP8266 MQTT Wifi Client to Serial Bridge with NTP
    Author: rkubera https://github.com/rkubera/
    License: MIT
 */
 
+
+#include <ESPAsyncWebServer.h>
+#include <ESPAsyncTCP.h>
+// #include <espnow.h>
+#include <ArduinoJson.h>
+#include <ESP8266HTTPClient.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-
 #include <String.h>
 #include <time.h>  // time() ctime()
 #include <sys/time.h>
-
-#include <ESP8266WiFi.h>
+#include "SimpleEspNowConnection.h"
 #include <PubSubClient.h>
-#include <ESP8266HTTPClient.h>
+
 // struct timeval
 //#include <coredecls.h>                  // settimeofday_cb()
 IPAddress ip;
@@ -52,6 +47,8 @@ bool wificonnected = false;
 //MQTT Client
 WiFiClient espGateway;
 PubSubClient client(espGateway);
+SimpleEspNowConnection simpleEspConnection(SimpleEspNowRole::SERVER);
+
 
 String mqtt_server = "192.168.8.150";
 int mqtt_port = 1883;
@@ -66,7 +63,6 @@ String mqtt_allSubscriptions = "home/MQTTGateway/#";
 // String mqtt_user = "";
 // String mqtt_pass = "";
 // String mqtt_allSubscriptions = "";
-
 
 
 //BUFFER
@@ -88,8 +84,6 @@ void time_is_set_cb(void) {
     cbtime_set = false;
   }
 }
-
-
 
 void mqtt_cb(char* topic, byte* payload, unsigned int length) {
   CRC32_reset();
@@ -158,6 +152,12 @@ bool reconnect() {
   return false;
 }
 
+void ESP_setup();
+void ESP_loop();
+
+
+
+
 void setup() {
   delay(1000);
   //ESP.eraseConfig();
@@ -193,20 +193,11 @@ void setup() {
   //settimeofday_cb(time_is_set_cb);
   configTime(TZ_SEC, DST_SEC, "pool.ntp.org");
 
+  // ESP SETUP 
+  ESP_setup();
 
 
-  // Init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
 
-  // Once ESPNow is successfully Init, we will register for recv CB to
-  // get recv packer info
-  esp_now_register_recv_cb(OnDataRecv);
-
-
-  webserverInit();
 }
 
 void loop() {
@@ -260,4 +251,7 @@ void loop() {
   ArduinoOTA.handle();
   commandLoop();
   yield();
+
+  ESP_loop();
+
 }
