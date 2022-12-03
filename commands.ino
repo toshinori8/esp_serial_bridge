@@ -136,6 +136,24 @@ void getCommand(String payload)
         
     
   }
+  else if (payload == "startpair"){
+
+              simpleEspConnection.startPairing(30);
+              sendCommand("Pairing mode ON 30sec", 0);
+
+  }
+  else if (payload == "endpair"){
+
+              simpleEspConnection.endPairing();
+              sendCommand("Pairing mode OFF ", 0);
+
+  }
+   else if (payload == "endpair"){
+
+              simpleEspConnection.endPairing();
+              sendCommand("Pairing mode OFF ", 0);
+
+  }
   else if (payload == "wifistatus")
   {
     if (wificonnected == true)

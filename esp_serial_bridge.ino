@@ -1,37 +1,28 @@
 
-
-
-
-
 /*
    ESP8266 MQTT Wifi Client to Serial Bridge with NTP
    Author: rkubera https://github.com/rkubera/
    License: MIT
 */
 
+
+#include <ESPAsyncWebServer.h>
+#include <ESPAsyncTCP.h>
+// #include <espnow.h>
+#include <ArduinoJson.h>
+#include <ESP8266HTTPClient.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-
 #include <String.h>
 #include <time.h>  // time() ctime()
 #include <sys/time.h>
-
-#include <ESP8266WiFi.h>
+#include "SimpleEspNowConnection.h"
 #include <PubSubClient.h>
-#include <ESP8266HTTPClient.h>
-#include <ESPAsyncTCP.h>
+
 // struct timeval
 //#include <coredecls.h>                  // settimeofday_cb()
 IPAddress ip;
-
-
-
-//BUFFER
-const int bufferSize = 1024;
-uint8_t myBuffer[bufferSize];
-int bufIdx = 0;
-
 
 //NTP
 #define TZ 0      // (utc+) TZ in hours
@@ -44,12 +35,11 @@ bool cbtime_set = false;
 
 
 //WIFIsettings
-
-String ssid = "|oooooio|";
-String  password = "pmgana921";
+String ssid = "|oooooi|";
+String password = "pmgana921";
 #ifndef STASSID
-#define STASSID "|oooooio|"
-#define STAPSK  "pmgana921"
+#define STASSID "|oooooi|"
+#define STAPSK "pmgana921"
 #endif
 
 bool wificonnected = false;
@@ -57,6 +47,8 @@ bool wificonnected = false;
 //MQTT Client
 WiFiClient espGateway;
 PubSubClient client(espGateway);
+SimpleEspNowConnection simpleEspConnection(SimpleEspNowRole::SERVER);
+
 
 String mqtt_server = "192.168.8.150";
 int mqtt_port = 1883;
@@ -64,10 +56,6 @@ String mqtt_user = "mqtt";
 String mqtt_pass = STAPSK;
 String mqtt_allSubscriptions = "home/MQTTGateway/#";
 
-//MQTT payload
-long lastMsg = 0;
-char msg[bufferSize];
-long int value = 0;
 
 
 // String mqtt_server ="192.168.8.107";
@@ -77,16 +65,15 @@ long int value = 0;
 // String mqtt_allSubscriptions = "";
 
 
+//BUFFER
+#define bufferSize 1024
+uint8_t myBuffer[bufferSize];
+int bufIdx = 0;
 
-
-void otaStart();
-void webserverInit();
-void esp_event();
-
-
-void initESP_NOW();
-
-// ESP_FUNCTIONS.INO 
+//MQTT payload
+long lastMsg = 0;
+char msg[bufferSize];
+long int value = 0;
 
 void time_is_set_cb(void) {
   gettimeofday(&cbtime, NULL);
@@ -97,8 +84,6 @@ void time_is_set_cb(void) {
     cbtime_set = false;
   }
 }
-
-
 
 void mqtt_cb(char* topic, byte* payload, unsigned int length) {
   CRC32_reset();
@@ -125,6 +110,8 @@ void mqtt_cb(char* topic, byte* payload, unsigned int length) {
     //digitalWrite(LED_, HIGH);  // Turn the LED off by making the voltage HIGH
   }
 }
+
+
 
 
 void reSubscribe() {
@@ -165,6 +152,12 @@ bool reconnect() {
   return false;
 }
 
+void ESP_setup();
+void ESP_loop();
+
+
+
+
 void setup() {
   delay(1000);
   //ESP.eraseConfig();
@@ -180,6 +173,7 @@ void setup() {
 
 
   /// OTA
+
   otaStart();
   /// OTA
 
@@ -187,7 +181,7 @@ void setup() {
   delay(120);
 
   //WIFI
-  WiFi.mode(WIFI_AP_STA);
+  WiFi.mode(WIFI_STA);
   Serial.println("Wifi Mode STA");
 
   Serial.print("Board MAC Address:  ");
@@ -199,9 +193,10 @@ void setup() {
   //settimeofday_cb(time_is_set_cb);
   configTime(TZ_SEC, DST_SEC, "pool.ntp.org");
 
+  // ESP SETUP 
+  ESP_setup();
 
-  // initESP_NOW();
-  // webserverInit();
+
 
 }
 
@@ -232,11 +227,11 @@ void loop() {
 
 
         if (mqtt_server != "") {
-          // if (reconnect()) {
-          //   // reSubscribe();
+          if (reconnect()) {
+            // reSubscribe();
 
-          //   // disable MQQT
-          // }
+            // disable MQQT
+          }
         }
         break;
       }
@@ -244,10 +239,10 @@ void loop() {
   } else if (ssid != "") {
     if (wificonnected == true) {
       if (!client.connected() && mqtt_server != "") {
-        // if (reconnect()) {
-        //   // reSubscribe();
-        //   // disable MQQT
-        // }
+        if (reconnect()) {
+          // reSubscribe();
+          // disable MQQT
+        }
       } else {
         client.loop();
       }
@@ -257,9 +252,6 @@ void loop() {
   commandLoop();
   yield();
 
- 
-
-  }
-
+  ESP_loop();
 
 }
