@@ -1,9 +1,3 @@
-
-
-void otaStart() {
- 
-  ArduinoOTA.setHostname("AVR-Termostat-DUE");
-  ArduinoOTA.setPassword(0000);
   ArduinoOTA.onStart([]() {
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -15,15 +9,16 @@ void otaStart() {
     // NOTE: if updating FS this would be the place to unmount FS using FS.end()
     Serial.println("Start updating " + type);
 
+    // Wait for a second
+  
+    delay(2000);
+   
   });
   ArduinoOTA.onEnd([]() {
     Serial.println("\nEnd");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-
-    String textt = "Progress: %u%%\r" + String((progress / (total / 100)));
-
   });
   ArduinoOTA.onError([](ota_error_t error) {
     Serial.printf("Error[%u]: ", error);
@@ -39,12 +34,9 @@ void otaStart() {
       Serial.println("End Failed");
     }
   });
-  ArduinoOTA.begin();
-  Serial.println("Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
 
-
-
-
-}
+  // ArduinoOTA.setPassword("admin");
+//
+//  ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+ ArduinoOTA.begin();
+  ArduinoOTA.setHostname("AVR-Termostat-DUE");

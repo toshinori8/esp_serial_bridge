@@ -1,8 +1,8 @@
 /*
-   ESP8266 MQTT Wifi Client to Serial Bridge with NTP  // Added suport for http requests.
-   Author: rkubera https://github.com/rkubera/
-   License: MIT
-*/
+ * ESP8266 MQTT Wifi Client to Serial Bridge with NTP  // Added suport for http requests. 
+ * Author: rkubera https://github.com/rkubera/
+ * License: MIT
+ */
 
 #include <String.h>
 
@@ -12,11 +12,11 @@ void sendCommand(String myCommand, int raw)
 {
 
   digitalWrite(LED_BUILTIN, LOW);
-  delay(50);
+delay(50);
   digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
+delay(100);
   digitalWrite(LED_BUILTIN, LOW);
-  delay(50);
+delay(50);
   digitalWrite(LED_BUILTIN, HIGH);
 
 
@@ -65,7 +65,7 @@ void getCommand(String payload)
     {
       String Hpayload;
       HTTPClient http;
-      http.begin(espGateway, payload_B); // Request URL
+      http.begin(HTTPClient, payload_B); // Request URL
       int httpCode = http.GET();
       Serial.println("httpCode  = " + httpCode);
       if (httpCode > 0)
@@ -75,7 +75,7 @@ void getCommand(String payload)
       sendCommand(Hpayload, 1);
       http.end();
     }
-  } else if (payload == "timestamp")
+  }else if (payload == "timestamp")
   {
     uint32_t mytimestamp = 0;
     mytimestamp = time(nullptr);
@@ -99,22 +99,22 @@ void getCommand(String payload)
   {
     IPAddress ip = WiFi.localIP();
     String command =
-      String(ip[0]) + "." +
-      String(ip[1]) + "." +
-      String(ip[2]) + "." +
-      String(ip[3]);
+        String(ip[0]) + "." +
+        String(ip[1]) + "." +
+        String(ip[2]) + "." +
+        String(ip[3]);
     sendCommand(command, 0);
   }
-
-
-  /// GET FORECAST BY SERIAL CONSOLE
-
+ 
+ 
+ /// GET FORECAST BY SERIAL CONSOLE
+ 
   else if (payload == "forecast_5h")
   {
     String Hpayload;
     HTTPClient http;
 
-    http.begin(espGateway, "http://api.openweathermap.org/data/2.5/forecast?lat=49.8808919&lon=19.5607773&appid=f055d509de51700a688e61d5f8e3da76&units=metric&cnt=3"); //Specify request destination
+    http.begin(HTTPClient, "http://api.openweathermap.org/data/2.5/forecast?lat=49.8808919&lon=19.5607773&appid=f055d509de51700a688e61d5f8e3da76&units=metric&cnt=3"); //Specify request destination
     int httpCode = http.GET();
 
     //Serial.println("httpCode  = " + httpCode);
@@ -122,19 +122,19 @@ void getCommand(String payload)
     if (httpCode > 0)
     { //Check the returning code
 
-      Hpayload = http.getString(); //Get the request response payload
+     Hpayload = http.getString(); //Get the request response payload
     }
+          
+ 
+      //Serial.print(Hpayload);
 
-
-    //Serial.print(Hpayload);
-
-
-
-    processJson(Hpayload);
-    //sendCommand(Hpayload, 1);
-    http.end();
-
-
+  
+        
+        processJson(Hpayload);
+        //sendCommand(Hpayload, 1);
+        http.end();
+        
+    
   }
   else if (payload == "wifistatus")
   {

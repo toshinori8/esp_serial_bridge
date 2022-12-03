@@ -2,9 +2,7 @@
 
 
 
-#include <espnow.h>
 
-#include <ArduinoJson.h>
 /*
    ESP8266 MQTT Wifi Client to Serial Bridge with NTP
    Author: rkubera https://github.com/rkubera/
@@ -46,11 +44,12 @@ bool cbtime_set = false;
 
 
 //WIFIsettings
-String ssid = "|oooooi|";
-String password = "pmgana921";
+
+String ssid = "|oooooio|";
+String  password = "pmgana921";
 #ifndef STASSID
-#define STASSID "|oooooi|"
-#define STAPSK "pmgana921"
+#define STASSID "|oooooio|"
+#define STAPSK  "pmgana921"
 #endif
 
 bool wificonnected = false;
@@ -76,7 +75,6 @@ long int value = 0;
 // String mqtt_user = "";
 // String mqtt_pass = "";
 // String mqtt_allSubscriptions = "";
-
 
 
 
@@ -127,8 +125,6 @@ void mqtt_cb(char* topic, byte* payload, unsigned int length) {
     //digitalWrite(LED_, HIGH);  // Turn the LED off by making the voltage HIGH
   }
 }
-
-
 
 
 void reSubscribe() {
@@ -184,7 +180,6 @@ void setup() {
 
 
   /// OTA
-
   otaStart();
   /// OTA
 
